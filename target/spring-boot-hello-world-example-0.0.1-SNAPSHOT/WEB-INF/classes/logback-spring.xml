@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <springProperty name="applicationName" source="spring.application.name" scope="context"/>
+    <property name="logPath" value="${plato.service.logging.path:-/scratch/logs}"></property>
+    <property name="loggerLevel" value="${plato.service.logging.level:-INFO}"/>
+    <property name="appender" value="${plato.service.logging.appender:-CONSOLE}"/>
+	<property name="LOG_PATTERN" value="%d{HH:mm:ss:SSS} | ${applicationName} | %X{tenantSvc} | %X{tenantPdb} | %X{entityId} | %X{userId} | %X{branch} | %-5level | [%X{traceId:-},%X{spanId:-}] | %logger{20}.%M | %msg%n%rEx"/>
+	<property name="logFileMaxSize" value="${plato.service.logging.rolling.maxSize:-10MB}"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<!-- Minimum logging level to be presented in the console logs -->
+			<level>INFO</level>
+		</filter>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+                    <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${LOG_PATTERN}</pattern>
+			<charset>utf8</charset>
+		</encoder>
+	</appender>
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>logFileName</key>
+            <defaultValue>${logPath}/${applicationName}</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${logFileName}.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>${logFileName}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                    <maxFileSize>${logFileMaxSize}</maxFileSize>
+                    <!-- <maxHistory>30</maxHistory>
+                    <totalSizeCap>3GB</totalSizeCap> -->
+                </rollingPolicy>
+                <encoder>
+                    <pattern>${LOG_PATTERN}</pattern>
+                    <charset>utf8</charset>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+    <logger level="${loggerLevel}" name="PlatoLogger" additivity="false">
+        <appender-ref ref="${appender}"/>
+    </logger>
+    <root level="${loggerLevel}">
+        <!-- Default logLevel is INFO for library logging -->
+		<appender-ref ref="${appender}"/>
+    </root>
+</configuration>

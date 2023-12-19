@@ -11,6 +11,7 @@
 	</parent>
 	<groupId>com.javatpoint</groupId>
 	<artifactId>spring-boot-hello-world-example</artifactId>
+	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>spring-boot-hello-world-example</name>
 	<description>Demo project for Spring Boot</description>
